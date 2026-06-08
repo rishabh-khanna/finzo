@@ -1,188 +1,177 @@
 /**
- * Finzo — PocketBase DB client
- * Replace PB_URL with your Fly.io URL after deployment
+ * Finzo — Supabase DB client
+ * Free tier: no credit card, no expiry
+ * Set env vars: VITE_SUPABASE_URL and VITE_SUPABASE_KEY
  */
-import PocketBase from 'pocketbase'
+import { createClient } from '@supabase/supabase-js'
 
-// ── CONFIG ────────────────────────────────────────────────────
-// During local dev: http://127.0.0.1:8090
-// After deploy:     https://finzo-pb.fly.dev  (your Fly.io URL)
-const PB_URL = import.meta.env.VITE_PB_URL || 'http://127.0.0.1:8090'
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || ''
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY || ''
 
-export const pb = new PocketBase(PB_URL)
-
-// Auto-refresh auth token
-pb.autoCancellation(false)
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 // ── AUTH ──────────────────────────────────────────────────────
 export const auth = {
-  /** Sign up with email + password */
   async signup(email, password, name) {
-    const user = await pb.collection('users').create({
-      email,
-      password,
-      passwordConfirm: password,
-      name,
+    const { data, error } = await supabase.auth.signUp({
+      email, password,
+      options: { data: { name } }
     })
-    await pb.collection('users').authWithPassword(email, password)
-    return user
+    if (error) throw error
+    return data
   },
 
-  /** Login */
   async login(email, password) {
-    return pb.collection('users').authWithPassword(email, password)
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) throw error
+    return data
   },
 
-  /** Logout */
-  logout() {
-    pb.authStore.clear()
+  async logout() {
+    await supabase.auth.signOut()
   },
 
-  /** Current user */
   get user() {
-    return pb.authStore.model
+    return supabase.auth.user?.() || null
   },
 
-  /** Is logged in */
   get isLoggedIn() {
-    return pb.authStore.isValid
+    const session = supabase.auth.session?.()
+    return !!session
   },
 
-  /** Listen to auth state changes */
   onChange(cb) {
-    return pb.authStore.onChange(cb)
-  }
-}
-
-// ── STATEMENTS ────────────────────────────────────────────────
-export const statements = {
-  /** Create a statement record after parsing */
-  async create(data) {
-    return pb.collection('statements').create({
-      user: auth.user?.id,
-      bank: data.bank,
-      account_type: data.accountType,  // 'credit' | 'debit'
-      month: data.month,
-      year: data.year,
-      source: data.source,             // 'pdf_upload' | 'email_fetch'
-      total_debit: data.totalDebit,
-      total_credit: data.totalCredit,
-      raw_filename: data.filename,
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      cb(session?.user || null)
     })
-  },
-
-  /** List all statements for current user */
-  async list() {
-    return pb.collection('statements').getFullList({
-      filter: `user = "${auth.user?.id}"`,
-      sort: '-created',
-    })
+    return () => data?.subscription?.unsubscribe()
   }
 }
 
 // ── TRANSACTIONS ──────────────────────────────────────────────
 export const transactions = {
-  /** Bulk insert transactions after parsing */
-  async bulkCreate(txns, statementId) {
-    const results = []
-    // PocketBase doesn't have bulk insert — batch in groups of 20
-    const chunks = []
-    for (let i = 0; i < txns.length; i += 20) {
-      chunks.push(txns.slice(i, i + 20))
+  async bulkCreate(txns) {
+    const user = (await supabase.auth.getUser()).data.user
+    if (!user) throw new Error('Not logged in')
+    const rows = txns.map(t => ({ ...t, user_id: user.id }))
+    // Insert in chunks of 50
+    for (let i = 0; i < rows.length; i += 50) {
+      const { error } = await supabase.from('transactions').insert(rows.slice(i, i+50))
+      if (error) console.error('Insert error:', error)
     }
-    for (const chunk of chunks) {
-      const promises = chunk.map(t =>
-        pb.collection('transactions').create({
-          user:         auth.user?.id,
-          statement:    statementId,
-          date:         t.date,
-          description:  t.description,
-          merchant:     t.merchant,
-          amount:       t.amount,
-          type:         t.type,          // 'debit' | 'credit'
-          category:     t.category,
-          upi_id:       t.upiId || '',
-          source:       t.source,        // 'cc_statement' | 'debit_statement' | 'upi_email' | 'cc_alert'
-          account_type: t.accountType,   // 'credit_card' | 'debit_card'
-          bank:         t.bank,
-          anomaly:      t.anomaly || false,
-          raw_desc:     t.rawDesc || t.description,
-        })
-      )
-      const res = await Promise.allSettled(promises)
-      results.push(...res)
-    }
-    return results
   },
 
-  /** Get all transactions with filters */
-  async list({ month, year, category, type, source, accountType } = {}) {
-    const filters = [`user = "${auth.user?.id}"`]
-    if (month)       filters.push(`month = ${month}`)
-    if (year)        filters.push(`year = ${year}`)
-    if (category)    filters.push(`category = "${category}"`)
-    if (type)        filters.push(`type = "${type}"`)
-    if (source)      filters.push(`source = "${source}"`)
-    if (accountType) filters.push(`account_type = "${accountType}"`)
-
-    return pb.collection('transactions').getFullList({
-      filter: filters.join(' && '),
-      sort: '-date',
-    })
-  },
-
-  /** Get transactions for a month */
   async forMonth(year, month) {
-    return pb.collection('transactions').getFullList({
-      filter: `user = "${auth.user?.id}" && year = ${year} && month = ${month}`,
-      sort: '-date',
-    })
+    const user = (await supabase.auth.getUser()).data.user
+    if (!user) return []
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('year', year)
+      .eq('month', month)
+      .order('date', { ascending: false })
+    if (error) throw error
+    return data || []
   },
 
-  /** Update category (user correction) */
+  async all() {
+    const user = (await supabase.auth.getUser()).data.user
+    if (!user) return []
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('date', { ascending: false })
+    if (error) throw error
+    return data || []
+  },
+
   async updateCategory(id, category) {
-    return pb.collection('transactions').update(id, { category })
+    const { error } = await supabase
+      .from('transactions')
+      .update({ category })
+      .eq('id', id)
+    if (error) throw error
+  }
+}
+
+// ── STATEMENTS ────────────────────────────────────────────────
+export const statements = {
+  async create(data) {
+    const user = (await supabase.auth.getUser()).data.user
+    if (!user) throw new Error('Not logged in')
+    const { data: result, error } = await supabase
+      .from('statements')
+      .insert({ ...data, user_id: user.id })
+      .select()
+      .single()
+    if (error) throw error
+    return result
+  },
+
+  async list() {
+    const user = (await supabase.auth.getUser()).data.user
+    if (!user) return []
+    const { data, error } = await supabase
+      .from('statements')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+    if (error) throw error
+    return data || []
   }
 }
 
 // ── BUDGETS ───────────────────────────────────────────────────
 export const budgets = {
-  async upsert(category, limit, year, month) {
-    const existing = await pb.collection('budgets').getList(1, 1, {
-      filter: `user = "${auth.user?.id}" && category = "${category}" && year = ${year} && month = ${month}`
-    })
-    if (existing.items.length) {
-      return pb.collection('budgets').update(existing.items[0].id, { limit })
-    }
-    return pb.collection('budgets').create({
-      user: auth.user?.id, category, limit, year, month
-    })
+  async upsert(category, limit_amount, year, month, ai_reason = '') {
+    const user = (await supabase.auth.getUser()).data.user
+    if (!user) throw new Error('Not logged in')
+    const { error } = await supabase
+      .from('budgets')
+      .upsert({
+        user_id: user.id,
+        category, limit_amount, year, month, ai_reason,
+        ai_set: !!ai_reason
+      }, { onConflict: 'user_id,category,year,month' })
+    if (error) throw error
   },
 
   async forMonth(year, month) {
-    return pb.collection('budgets').getFullList({
-      filter: `user = "${auth.user?.id}" && year = ${year} && month = ${month}`
-    })
+    const user = (await supabase.auth.getUser()).data.user
+    if (!user) return []
+    const { data, error } = await supabase
+      .from('budgets')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('year', year)
+      .eq('month', month)
+    if (error) throw error
+    return data || []
   }
 }
 
 // ── INVESTMENTS ───────────────────────────────────────────────
 export const investments = {
   async upsert(holding) {
-    const existing = await pb.collection('investments').getList(1, 1, {
-      filter: `user = "${auth.user?.id}" && name = "${holding.name}" && type = "${holding.type}"`
-    })
-    const data = { user: auth.user?.id, ...holding }
-    if (existing.items.length) {
-      return pb.collection('investments').update(existing.items[0].id, data)
-    }
-    return pb.collection('investments').create(data)
+    const user = (await supabase.auth.getUser()).data.user
+    if (!user) throw new Error('Not logged in')
+    const { error } = await supabase
+      .from('investments')
+      .upsert({ ...holding, user_id: user.id }, { onConflict: 'user_id,name,type' })
+    if (error) throw error
   },
 
   async list() {
-    return pb.collection('investments').getFullList({
-      filter: `user = "${auth.user?.id}"`,
-      sort: 'type,name'
-    })
+    const user = (await supabase.auth.getUser()).data.user
+    if (!user) return []
+    const { data, error } = await supabase
+      .from('investments')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('type')
+    if (error) throw error
+    return data || []
   }
 }
