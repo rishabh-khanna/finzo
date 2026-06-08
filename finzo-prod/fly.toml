@@ -1,0 +1,37 @@
+# fly.toml — PocketBase on Fly.io (free forever)
+# Deploy with: flyctl deploy
+
+app = "finzo-pb"          # change to your app name
+primary_region = "bom"    # Mumbai region — closest to India
+
+[build]
+  image = "ghcr.io/muchobien/pocketbase:latest"
+
+[env]
+  PORT = "8090"
+
+[mounts]
+  source      = "pb_data"
+  destination = "/pb/pb_data"
+
+[[services]]
+  protocol    = "tcp"
+  internal_port = 8090
+
+  [[services.ports]]
+    port     = 443
+    handlers = ["tls", "http"]
+
+  [[services.ports]]
+    port     = 80
+    handlers = ["http"]
+
+  [services.http_checks]
+    interval = "30s"
+    timeout  = "5s"
+    path     = "/api/health"
+
+[[vm]]
+  memory = "256mb"      # free tier
+  cpu_kind = "shared"
+  cpus = 1

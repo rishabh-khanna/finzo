@@ -1,0 +1,168 @@
+/* ── RESET ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { height: 100%; }
+body { font-family: 'DM Sans', system-ui, -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font-family: inherit; }
+img, svg { display: block; }
+
+/* ── DARK THEME (default) ──────────────────────────────────── */
+:root {
+  --bg:        #07080F;
+  --surface:   #0C0E1B;
+  --card:      #101322;
+  --hover:     #14172A;
+  --border:    #1A1D30;
+  --accent:    #7C6FFF;
+  --pink:      #FF6B9D;
+  --green:     #00D48F;
+  --blue:      #5B9CF6;
+  --teal:      #26C6DA;
+  --text:      #EDF0FF;
+  --sub:       #6870A0;
+  --muted:     #353852;
+  --tag:       #13162A;
+  --danger:    #FF5C5C;
+  --warn:      #FFAF20;
+  --success:   #00D48F;
+  --yellow:    #FFD166;
+  --gradient:  linear-gradient(135deg, #7C6FFF, #FF6B9D);
+  --shadow:    0 8px 32px rgba(0,0,0,0.4);
+  --radius-sm: 8px;
+  --radius:    12px;
+  --radius-lg: 16px;
+}
+
+/* ── LIGHT THEME ───────────────────────────────────────────── */
+[data-theme="light"] {
+  --bg:        #F0F2FF;
+  --surface:   #FFFFFF;
+  --card:      #FFFFFF;
+  --hover:     #F4F6FF;
+  --border:    #DDE0F5;
+  --green:     #00B87A;
+  --text:      #080B1A;
+  --sub:       #565C84;
+  --muted:     #B4B8D0;
+  --tag:       #EEEFFE;
+  --danger:    #E03030;
+  --warn:      #C07800;
+  --success:   #00B87A;
+  --yellow:    #B08000;
+  --shadow:    0 4px 20px rgba(0,0,0,0.1);
+}
+
+/* ── SCROLLBAR ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); opacity: 0.5; }
+
+/* ── UTILITY CLASSES ───────────────────────────────────────── */
+.flex         { display: flex; }
+.flex-col     { display: flex; flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center  { justify-content: center; }
+.flex-1       { flex: 1; }
+.w-full       { width: 100%; }
+.truncate     { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.no-select    { user-select: none; -webkit-user-select: none; }
+.pointer      { cursor: pointer; }
+.gap-8        { gap: 8px; }
+.gap-12       { gap: 12px; }
+.gap-16       { gap: 16px; }
+
+/* ── CARD ──────────────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+/* ── CHIP / BADGE ──────────────────────────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 20px;
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+.chip-sm { font-size: 9px;  padding: 1px 7px; }
+.chip-md { font-size: 10px; padding: 2px 9px; }
+
+/* ── BUTTON ────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.btn:hover   { opacity: 0.88; }
+.btn:active  { transform: scale(0.97); }
+.btn-primary { background: var(--gradient); color: #fff; padding: 10px 20px; font-size: 14px; }
+.btn-ghost   { background: transparent; border: 1px solid var(--border); color: var(--sub); padding: 8px 16px; font-size: 12px; }
+.btn-danger  { background: rgba(255,92,92,0.12); border: 1px solid rgba(255,92,92,0.3); color: var(--danger); padding: 8px 16px; font-size: 12px; }
+.btn-icon    { width: 32px; height: 32px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--card); color: var(--sub); font-size: 15px; }
+
+/* ── INPUT ─────────────────────────────────────────────────── */
+.input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input:focus { border-color: var(--accent); }
+.input::placeholder { color: var(--muted); }
+
+/* ── PROGRESS BAR ──────────────────────────────────────────── */
+.progress-track { background: rgba(255,255,255,0.07); border-radius: 100px; overflow: hidden; }
+.progress-fill  { height: 100%; border-radius: 100px; transition: width 0.6s ease; }
+
+/* ── ANIMATIONS ────────────────────────────────────────────── */
+@keyframes fadeIn    { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes slideIn   { from { transform: translateX(-100%); } to { transform: none; } }
+@keyframes bounce    { 0%,80%,100% { transform: translateY(0); } 40% { transform: translateY(-5px); } }
+@keyframes spin      { to { transform: rotate(360deg); } }
+@keyframes shimmer   { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+.fade-in   { animation: fadeIn 0.25s ease; }
+.slide-in  { animation: slideIn 0.26s cubic-bezier(.4,0,.2,1); }
+
+/* ── SKELETON LOADER ───────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, var(--card) 25%, var(--hover) 50%, var(--card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ── PAGE CONTAINER ────────────────────────────────────────── */
+.page { padding: 16px 16px 80px; animation: fadeIn 0.2s ease; }
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+@media (min-width: 640px) {
+  .page { padding: 24px 24px 80px; }
+}
+@media (min-width: 1024px) {
+  .page { padding: 28px 32px 80px; }
+}
+
+/* ── SIDEBAR TRANSITION ────────────────────────────────────── */
+.sidebar { transition: width 0.26s cubic-bezier(.4,0,.2,1); }
+
+/* ── SELECT OPTIONS ────────────────────────────────────────── */
+select option { background: var(--surface); color: var(--text); }
+
+/* ── MOBILE SAFE AREA ──────────────────────────────────────── */
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 16px); }
