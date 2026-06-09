@@ -56,3 +56,17 @@ create policy "own" on investments   for all using (auth.uid() = user_id);
 -- INDEX for fast month queries
 create index if not exists idx_txn_month on transactions(user_id, year, month);
 create index if not exists idx_txn_cat   on transactions(user_id, category);
+
+-- GMAIL TOKENS (stores OAuth tokens per user)
+create table if not exists gmail_tokens (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users on delete cascade not null unique,
+  gmail_email text,
+  access_token text,
+  refresh_token text,
+  expiry_date bigint,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+alter table gmail_tokens enable row level security;
+create policy "own" on gmail_tokens for all using (auth.uid() = user_id);

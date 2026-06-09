@@ -3,11 +3,8 @@ import { useStore, useTransactions } from '../lib/useStore.jsx'
 import { fmt, CATS } from '../lib/format.js'
 import { StatCard, Section, Chip, ProgBar, AiBanner } from '../components/Atoms.jsx'
 
-const MONTHLY = [
-  { m:'Jan', spent:28000, income:85000 }, { m:'Feb', spent:31500, income:85000 },
-  { m:'Mar', spent:38000, income:85000 }, { m:'Apr', spent:24000, income:85000 },
-  { m:'May', spent:38056, income:85000 },
-]
+// Monthly data will come from real transactions
+const MONTHLY = []
 
 export default function Dashboard({ setPage }) {
   const { state } = useStore()
@@ -90,16 +87,10 @@ export default function Dashboard({ setPage }) {
         </Section>
 
         <Section title="Income vs Spending (6mo)">
-          <ResponsiveContainer width="100%" height={175}>
-            <BarChart data={MONTHLY} barSize={12} barGap={3}>
-              <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="m" tick={{ fill:'var(--muted)', fontSize:10 }} axisLine={false} tickLine={false} />
-              <YAxis hide />
-              <Tooltip content={<TT />} />
-              <Bar dataKey="income" fill="var(--success)" radius={[4,4,0,0]} opacity={0.4} />
-              <Bar dataKey="spent"  fill="var(--accent)"  radius={[4,4,0,0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <div style={{ textAlign:'center', padding:'48px 0', color:'var(--sub)', fontSize:12 }}>
+            <div style={{ fontSize:32, marginBottom:10 }}>📊</div>
+            Import statements to see your 6-month trend
+          </div>
         </Section>
       </div>
 

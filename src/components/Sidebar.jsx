@@ -105,10 +105,10 @@ export default function Sidebar({ page, setPage, open, mini, onToggle, isMobile,
           {open && (
             <div style={{ display:'flex', alignItems:'center', gap:9, padding:'9px 11px', borderRadius:9, background:'var(--tag)', marginTop:2 }}>
               <div style={{ width:28, height:28, borderRadius:'50%', background:'var(--gradient)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, color:'#fff', fontWeight:800, flexShrink:0 }}>
-                {state.user?.name?.[0]?.toUpperCase() || 'U'}
+                {(state.user?.user_metadata?.name || state.user?.email || 'U')[0].toUpperCase()}
               </div>
               <div style={{ flex:1, overflow:'hidden' }}>
-                <div style={{ fontSize:12, fontWeight:700, color:'var(--text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{state.user?.name || 'User'}</div>
+                <div style={{ fontSize:12, fontWeight:700, color:'var(--text)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{state.user?.user_metadata?.name || state.user?.email?.split('@')[0] || 'User'}</div>
                 <div style={{ fontSize:10, color:'var(--muted)' }}>{state.user?.email || ''}</div>
               </div>
               <button onClick={onLogout} title="Logout" style={{ background:'none', border:'none', cursor:'pointer', fontSize:14, color:'var(--sub)', padding:2, flexShrink:0 }}>⏻</button>
@@ -117,7 +117,7 @@ export default function Sidebar({ page, setPage, open, mini, onToggle, isMobile,
           {mini && (
             <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
               <div style={{ width:28, height:28, borderRadius:'50%', background:'var(--gradient)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, color:'#fff', fontWeight:800, cursor:'pointer' }}>
-                {state.user?.name?.[0]?.toUpperCase() || 'U'}
+                {(state.user?.user_metadata?.name || state.user?.email || 'U')[0].toUpperCase()}
               </div>
               <button onClick={onLogout} title="Logout" style={{ background:'none', border:'none', cursor:'pointer', fontSize:13, color:'var(--sub)' }}>⏻</button>
             </div>

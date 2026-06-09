@@ -116,7 +116,7 @@ export function StoreProvider({ children }) {
     setLoading:      (loading, msg) => dispatch({ type:'SET_LOADING', payload: loading, msg }),
     setError:        (err) => dispatch({ type:'SET_ERROR', payload: err }),
     setMonth:        (month, year) => dispatch({ type:'SET_MONTH', month, year }),
-    logout:          () => dispatch({ type:'LOGOUT' }),
+    logout:          () => { dispatch({ type:'LOGOUT' }) },
   }
 
   return (
