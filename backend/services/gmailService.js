@@ -40,7 +40,7 @@ const BANK_GMAIL_QUERY = `(
   OR subject:(e-statement OR "account statement" OR "credit card statement" OR
               "debit card statement" OR "UPI transaction" OR "debited" OR 
               "credited" OR "transaction alert" OR "payment" OR "CAS report")
-) newer_than:180d`
+)`
 
 // ── GET OAUTH CLIENT WITH USER TOKENS ─────────────────────────
 async function getAuthClientForUser(userId) {
@@ -96,7 +96,7 @@ async function scanBankEmails(userId) {
   const { data } = await gmail.users.messages.list({
     userId:   'me',
     q:        BANK_GMAIL_QUERY,
-    maxResults: 100,
+    maxResults: 500,
   })
 
   if (!data.messages?.length) {
