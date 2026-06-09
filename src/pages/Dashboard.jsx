@@ -43,10 +43,10 @@ export default function Dashboard({ setPage }) {
 
       {/* KPIs */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))', gap:10, marginBottom:14 }}>
-        <StatCard label="Total Spent"    value={fmt(totalSpent, cur)}  sub="+18% vs Apr"   color="var(--accent)"  icon="💸" />
-        <StatCard label="Monthly Income" value={fmt(totalIncome || 85000, cur)} sub="Salary" color="var(--success)" icon="💰" />
+        <StatCard label="Total Spent"    value={fmt(totalSpent, cur)}  sub={totalSpent > 0 ? "This month" : "Import a statement"} color="var(--accent)"  icon="💸" />
+        <StatCard label="Monthly Income" value={fmt(totalIncome || 0, cur)} sub={totalIncome > 0 ? "From statements" : "Import a statement"} color="var(--success)" icon="💰" />
         <StatCard label="Largest Spend"  value={fmt(Math.max(...Object.values(byCategory), 0), cur)} sub="EMI/Loans" color="#EC407A" icon="🏦" />
-        <StatCard label="Savings Rate"   value={`${Math.round(((85000-totalSpent)/85000)*100)}%`} sub="of income saved" color="var(--yellow)" icon="🎯" />
+        <StatCard label="Savings Rate" value={totalIncome > 0 ? `${Math.round(((totalIncome-totalSpent)/totalIncome)*100)}%` : '—'} sub={totalIncome > 0 ? "of income saved" : "Import statement"} color="var(--yellow)" icon="🎯" />
       </div>
 
       {/* Anomaly */}
