@@ -116,7 +116,7 @@ export function cleanMerchant(raw = '') {
 
   // Remove common bank prefixes/suffixes
   let s = raw
-    .replace(/^(UPI\/|UPI-|IMPS\/|NEFT\/|POS\/|POS\s+\d+\*?|NFS\/|BIL\/|INT\/|EMI\/|ACH\/|ECS\/|SI\//i, '')
+    .replace(/^(UPI\/|UPI-|IMPS\/|NEFT\/|POS\/|POS\s+\d+\*?|NFS\/|BIL\/|INT\/|EMI\/|ACH\/|ECS\/|SI\/)/i, '')
     .replace(/\/[A-Z]{2,}$/i, '')    // remove state code suffix
     .replace(/\*\d{4,}$/i, '')       // remove trailing numbers
     .replace(/\s{2,}/g, ' ')
