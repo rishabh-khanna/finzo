@@ -8,30 +8,36 @@ const gmailRoutes= require('./routes/gmail')
 const app  = express()
 const PORT = process.env.PORT || 3001
 
+// ── CORS ──────────────────────────────────────────────────────
+const corsOptions = {
+  origin: function(origin, callback) {
+    // Allow all origins for now (tighten after testing)
+    callback(null, true)
+  },
+  credentials: true,
+  methods: ['GET','POST','PUT','DELETE','OPTIONS','PATCH'],
+  allowedHeaders: ['Content-Type','Authorization','x-user-id','Accept'],
+  optionsSuccessStatus: 200,
+}
+
+app.use(cors(corsOptions))
+
+// Handle ALL preflight OPTIONS requests — this fixes the 405 error
+app.options('*', cors(corsOptions))
+
 // ── MIDDLEWARE ────────────────────────────────────────────────
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true }))
 
-// CORS — allow your Netlify frontend
-app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL || 'http://localhost:5173',
-    /\.netlify\.app$/,
-    /\.github\.io$/,
-  ],
-  credentials: true,
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization','x-user-id'],
-}))
-
 // Session for OAuth state
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'finzo-session-secret-change-in-prod',
+  secret: process.env.SESSION_SECRET || 'finzo-session-secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 10 * 60 * 1000, // 10 minutes — just for OAuth flow
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 10 * 60 * 1000,
   }
 }))
 
