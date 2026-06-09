@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { useStore } from '../lib/useStore.js'
+import { useStore } from '../lib/useStore.jsx'
 import { processPDF, detectBank, BANK_PASSWORD_PATTERNS } from '../lib/pdfParser.js'
 import { parseEmails } from '../lib/emailParser.js'
 import { transactions as txnDB, statements as stmtDB } from '../lib/db.js'

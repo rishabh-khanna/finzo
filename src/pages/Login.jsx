@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/db.js'
-import { useStore } from '../lib/useStore.js'
+import { useStore } from '../lib/useStore.jsx'
 
 export default function Login() {
   const { actions } = useStore()

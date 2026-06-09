@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useStore, useTransactions } from '../lib/useStore.js'
+import { useStore, useTransactions } from '../lib/useStore.jsx'
 import { fmt, CATS } from '../lib/format.js'
 import { Chip, EmptyState } from '../components/Atoms.jsx'
 

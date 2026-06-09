@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { StoreProvider, useStore } from './lib/useStore.js'
+import { StoreProvider, useStore } from './lib/useStore.jsx'
 import { supabase } from './lib/db.js'
 import Login from './pages/Login.jsx'
 import Shell from './components/Shell.jsx'

@@ -1,5 +1,5 @@
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, CartesianGrid } from 'recharts'
-import { useStore, useTransactions } from '../lib/useStore.js'
+import { useStore, useTransactions } from '../lib/useStore.jsx'
 import { fmt, CATS } from '../lib/format.js'
 import { StatCard, Section, Chip, ProgBar, AiBanner } from '../components/Atoms.jsx'
 

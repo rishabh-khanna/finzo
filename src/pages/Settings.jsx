@@ -1,4 +1,4 @@
-import { useStore } from '../lib/useStore.js'
+import { useStore } from '../lib/useStore.jsx'
 
 export default function Settings({ onLogout }) {
   const { state, actions } = useStore()

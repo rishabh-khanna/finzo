@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useStore } from '../lib/useStore.js'
+import { useStore } from '../lib/useStore.jsx'
 import { auth } from '../lib/db.js'
 import Sidebar from './Sidebar.jsx'
 import Topbar from './Topbar.jsx'

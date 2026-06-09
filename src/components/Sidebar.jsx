@@ -1,4 +1,4 @@
-import { useStore } from '../lib/useStore.js'
+import { useStore } from '../lib/useStore.jsx'
 
 const NAV = [
   { group:'💸 Spending',     items:[
